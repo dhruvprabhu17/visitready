@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VisitReady</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Kalam:wght@400;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a clinic slip on the left of the hero, a working three-step tool directly under it, then the case for it. */
+:root{
+  --paper:#EEF3F6; --card:#FFFFFF; --ink:#11202B; --muted:#53656F; --line:#D3DDE3;
+  --accent:#0B7A6E; --accent-ink:#FFFFFF; --accent-soft:#DDF1EE;
+  --need:#A94F05; --need-soft:#FBEBD9; --ok:#17703A; --ok-soft:#DCF1E3; --ask:#34559B; --ask-soft:#E3EAF8;
+  --slip:#FBFBF4; --slip-line:#C9D6DC; --pen:#1E3A8A;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Public Sans","Segoe UI",system-ui,sans-serif;
+  --hand:"Kalam","Segoe Print","Bradley Hand",cursive;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D161C; --card:#14212A; --ink:#E7EEF2; --muted:#9DB0BB; --line:#26373F;
+    --accent:#3CC3B2; --accent-ink:#06201C; --accent-soft:#12332F;
+    --need:#F0A55B; --need-soft:#3A2812; --ok:#6FD497; --ok-soft:#123222; --ask:#9DB6F2; --ask-soft:#1A2644;
+    --slip:#1B2A33; --slip-line:#2F444E; --pen:#9DB6F2; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D161C; --card:#14212A; --ink:#E7EEF2; --muted:#9DB0BB; --line:#26373F;
+  --accent:#3CC3B2; --accent-ink:#06201C; --accent-soft:#12332F;
+  --need:#F0A55B; --need-soft:#3A2812; --ok:#6FD497; --ok-soft:#123222; --ask:#9DB6F2; --ask-soft:#1A2644;
+  --slip:#1B2A33; --slip-line:#2F444E; --pen:#9DB6F2; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+.eyebrow{font:600 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h2{font-size:clamp(28px,4vw,42px);font-weight:700}
+.lede{color:var(--muted);max-width:62ch;margin-top:14px}
+
+/* header */
+header.top{border-bottom:1px solid var(--line);background:var(--paper)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+.brand{font:800 22px/1 var(--display);letter-spacing:-.02em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--accent);display:grid;place-items:center}
+.brand i:after{content:"";width:12px;height:7px;border-left:3px solid var(--accent-ink);border-bottom:3px solid var(--accent-ink);transform:rotate(-45deg) translate(1px,-1px)}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:15px}
+nav a{color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:56px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(38px,6vw,68px);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .sub{font-size:19px;color:var(--muted);margin-top:20px;max-width:46ch}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn{font:600 16px/1 var(--body);padding:14px 20px;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;margin-top:26px;font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--card)}
+.slip{position:relative;background:var(--slip);border:1px solid var(--slip-line);border-radius:6px;padding:26px 24px 30px;transform:rotate(1.6deg);box-shadow:0 14px 30px -18px rgba(10,30,40,.45);
+  background-image:repeating-linear-gradient(transparent 0 33px,var(--slip-line) 33px 34px);background-position:0 18px}
+.slip .hd{font:700 13px var(--body);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;background:var(--slip);display:inline-block;padding-right:8px}
+.slip p{font:400 24px/34px var(--hand);color:var(--pen)}
+.tag{position:absolute;font:600 13px/1.2 var(--body);background:var(--need-soft);color:var(--need);border:1px solid var(--need);border-radius:999px;padding:5px 11px;box-shadow:0 4px 10px -6px rgba(0,0,0,.4)}
+.tag.t1{right:-8px;top:104px}.tag.t2{left:-14px;top:150px}.tag.t3{right:12px;bottom:-14px}
+
+/* tool */
+#try{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.notice{margin-top:18px;padding:12px 16px;border-left:4px solid var(--need);background:var(--need-soft);color:var(--ink);font-size:15px;border-radius:0 8px 8px 0;max-width:80ch}
+.tool{margin-top:28px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);overflow:hidden}
+.steps{display:flex;margin:0;padding:0;list-style:none;border-bottom:1px solid var(--line);background:var(--card)}
+.steps li{flex:1;padding:14px 16px;font:600 14px/1.3 var(--body);color:var(--muted);display:flex;gap:10px;align-items:center;border-right:1px solid var(--line)}
+.steps li:last-child{border-right:0}
+.steps b{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;flex:none}
+.steps li.on{color:var(--ink);background:var(--accent-soft)}
+.steps li.on b{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.steps li.done b{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.pane{padding:24px}
+.pane[hidden]{display:none}
+.lbl{display:block;font:600 14px/1.3 var(--body);margin-bottom:8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{font:500 14px/1.2 var(--body);padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+textarea,input[type=date],select{width:100%;font:400 16px/1.5 var(--body);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+textarea{min-height:150px;resize:vertical;font-family:var(--hand);font-size:20px;line-height:1.6;color:var(--pen)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;align-items:center}
+.small{font-size:14px;color:var(--muted)}
+.photo{margin-top:16px;padding:14px;border:1px dashed var(--line);border-radius:10px;background:var(--card)}
+.tbl{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:600 13px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td input[type=date]{padding:8px 10px;font-size:15px}
+td input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.verdict{display:flex;gap:16px;align-items:flex-start;padding:20px;border-radius:12px;border:2px solid;margin-bottom:20px}
+.verdict.need{background:var(--need-soft);border-color:var(--need)}
+.verdict.none{background:var(--ok-soft);border-color:var(--ok)}
+.verdict.ask{background:var(--ask-soft);border-color:var(--ask)}
+.verdict .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 24px var(--display);flex:none;color:var(--card)}
+.verdict.need .ic{background:var(--need)}.verdict.none .ic{background:var(--ok)}.verdict.ask .ic{background:var(--ask)}
+.verdict h3{font-size:26px}
+.verdict p{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.box h4{font:700 15px var(--display);margin:0 0 8px;letter-spacing:0}
+.box ul{margin:0;padding-left:20px}
+.box li{margin:4px 0}
+.box li span{color:var(--muted);font-size:14px}
+.q{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--paper);border:1px solid var(--line);font-size:15px}
+.err{margin-top:12px;color:var(--need);font-weight:600}
+
+/* content */
+.stat{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-top:30px;padding:26px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.stat .n{font:800 clamp(64px,10vw,110px)/1 var(--display);color:var(--accent);letter-spacing:-.03em}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.cols .box h3{font-size:19px;margin-bottom:10px}
+.cols .box p{color:var(--muted);font-size:16px}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;counter-reset:s}
+.flow .box{position:relative;padding-top:22px}
+.flow .box:before{counter-increment:s;content:counter(s);position:absolute;top:-16px;left:16px;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 15px var(--display)}
+.flow h3{font-size:20px;margin-bottom:8px}
+.flow p{color:var(--muted);font-size:16px}
+.usp{margin-top:22px;padding:16px 20px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent);max-width:80ch}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.kpi{padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.kpi b{display:block;font:800 52px/1 var(--display);color:var(--accent)}
+.kpi span{display:block;font-weight:600;margin-top:8px}
+.kpi small{display:block;color:var(--muted);margin-top:4px;font-size:14px}
+.stage{display:flex;margin:30px 0 0;padding:0;list-style:none;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.stage li{flex:1;padding:14px 12px;text-align:center;font:600 14px/1.3 var(--body);color:var(--muted);border-right:1px solid var(--line)}
+.stage li:last-child{border-right:0}
+.stage li.past{color:var(--ok)}
+.stage li.now{background:var(--accent);color:var(--accent-ink)}
+.time{margin:22px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.time li{border-top:3px solid var(--accent);padding-top:10px;font-size:15px;color:var(--muted)}
+.time li b{display:block;color:var(--ink);font:700 16px var(--display)}
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.person{display:flex;gap:14px;align-items:center;padding:18px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.person i{font:700 18px var(--display);font-style:normal;width:52px;height:52px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.person b{display:block;font:700 18px var(--display)}
+.person span{color:var(--muted);font-size:15px}
+.ask-list{columns:2;gap:30px;margin:22px 0 0;padding-left:20px}
+.ask-list li{margin-bottom:8px;break-inside:avoid}
+footer{padding:36px 0 56px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .slip{transform:none;max-width:460px}
+  .cols,.flow,.kpis,.team{grid-template-columns:1fr}
+  .time{grid-template-columns:1fr 1fr}
+  .stage{flex-direction:column}.stage li{border-right:0;border-bottom:1px solid var(--line)}
+  .stat{grid-template-columns:1fr}
+  .grid2,.row2{grid-template-columns:1fr}
+  .ask-list{columns:1}
+  .steps li span{display:none}
+  section{padding:52px 0}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top"><i aria-hidden="true"></i>VisitReady</a>
+  <nav aria-label="Sections"><a href="#try">Try it</a><a href="#problem">The problem</a><a href="#how">How it works</a><a href="#impact">Impact</a><a href="#team">Team</a></nav>
+</div></header>
+
+<main id="top">
+<div class="hero"><div class="wrap">
+  <div>
+    <h1>Do I need a test <em>before</em> this visit?</h1>
+    <p class="sub">VisitReady reads the follow-up note your doctor already gave you and answers in plain words, before you spend on the trip.</p>
+    <div class="cta"><a class="btn" href="#try">Try it with a sample note</a><a class="btn ghost" href="#problem">Why this matters</a></div>
+    <span class="badge">Seva First Innovation Challenge 2026 · Maharashtra zone</span>
+  </div>
+  <div class="slip" aria-label="Example of a handwritten follow-up slip">
+    <div class="hd">Follow-up slip</div>
+    <p>Rx: Metformin 500 bd<br>Review after 2 wks<br>Bring reports</p>
+    <span class="tag t1">Which reports?</span><span class="tag t2">New test first?</span><span class="tag t3">Fasting or not?</span>
+  </div>
+</div></div>
+
+<section id="try"><div class="wrap">
+  <div class="eyebrow">Working prototype</div>
+  <h2>Try it with a note</h2>
+  <p class="lede">Pick a sample note or paste your own text, tell us the visit date, check what we read, and get one answer: test needed, no test needed, or ask the clinic.</p>
+  <div class="notice"><b>Prototype notice.</b> The test rules in this demo are illustrative. Practising doctors have not reviewed them yet; that review is the first step of our pilot. This tool does not give medical advice. Follow your doctor's instructions.</div>
+
+  <div class="tool">
+    <ol class="steps" id="stepBar">
+      <li class="on" data-s="1"><b>1</b><span>Your note</span></li>
+      <li data-s="2"><b>2</b><span>Check what we read</span></li>
+      <li data-s="3"><b>3</b><span>Your answer</span></li>
+    </ol>
+
+    <div class="pane" id="pane1">
+      <span class="lbl" id="sampleLbl">Start with a sample note (all names are made up)</span>
+      <div class="chips" id="sampleList" role="group" aria-labelledby="sampleLbl"></div>
+      <label class="lbl" for="noteText">Follow-up note text</label>
+      <textarea id="noteText" spellcheck="false"></textarea>
+      <div class="row2">
+        <div><label class="lbl" for="visitDate">Date of your follow-up visit</label><input type="date" id="visitDate"></div>
+        <div></div>
+      </div>
+      <div class="photo">
+        <label class="lbl" for="photoFile">Or read a photo of your note</label>
+        <input type="file" id="photoFile" accept="image/*">
+        <p class="small" id="photoStatus">Photo reading turns the picture into text with Claude. You can fix the text before going on. Nothing in this demo is stored.</p>
+      </div>
+      <div class="actions"><button class="btn" id="readBtn" type="button">Read my note</button><span class="err" id="err1" role="alert"></span></div>
+    </div>
+
+    <div class="pane" id="pane2" hidden>
+      <p><b>This is what we read.</b> Fix anything that is wrong before we answer.</p>
+      <div class="row2">
+        <div><label class="lbl" for="condSel">Condition</label><select id="condSel"></select></div>
+        <div><label class="lbl" for="visitShow">Visit date</label><input type="date" id="visitShow"></div>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Test in your note</th><th>Doctor asked for it now</th><th>Last done (if the note gives a date)</th></tr></thead><tbody id="readRows"></tbody></table></div>
+      <p class="small" id="noRows" style="margin-top:10px"></p>
+      <div class="actions"><button class="btn ghost" id="back1" type="button">Edit note</button><button class="btn" id="answerBtn" type="button">Get my answer</button><span class="err" id="err2" role="alert"></span></div>
+    </div>
+
+    <div class="pane" id="pane3" hidden aria-live="polite">
+      <div id="answerBox"></div>
+      <div class="actions"><button class="btn ghost" id="back2" type="button">Back to what we read</button><button class="btn" id="restart" type="button">Try another note</button></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="problem"><div class="wrap">
+  <div class="eyebrow">The problem</div>
+  <h2>A follow-up date, but no word on what to do before it</h2>
+  <p class="lede">A patient is told “come back after 2 weeks”, but not whether a new test or an old report is needed at that visit. Many only find out at the clinic, after travelling, waiting and paying.</p>
+  <div class="stat">
+    <div class="n">27%</div>
+    <div><b>of outpatient out-of-pocket spend in India goes on consultation fees and on travel, food and lodging.</b>
+    <p class="small" style="margin-top:8px">12.4% consultation fees plus 14.6% travel, food and lodging (NSS 2017-18; Ambade et al., JAMA Network Open 2022). A repeat trip pays these twice. This is the share of spend a repeat trip doubles, not a measure of how many visits are wasted.</p></div>
+  </div>
+  <div class="cols">
+    <div class="box"><h3>Who is affected</h3><p>Patients with diabetes, thyroid, blood pressure or kidney conditions; people travelling in from other towns or suburbs; older and first-time patients holding handwritten slips. Mumbai first, then other cities.</p></div>
+    <div class="box"><h3>What is missing today</h3><p>Slips rarely say what to bring or do beforehand. Booking and records apps fix the slot and store reports but do not say if a test is due. Calling reception means hold times.</p></div>
+    <div class="box"><h3>Why it matters</h3><p>A wasted visit costs a fare, a day's wages and a second fee. The clinic spends a consultation without the data it needed. For long-term conditions, it also delays treatment decisions.</p></div>
+  </div>
+  <p class="small" style="margin-top:16px">Forgetfulness and no reminders topped the reasons in a 2026 study of 100 patients who missed outpatient visits (Int J Community Med Public Health).</p>
+</div></section>
+
+<section id="how" style="background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2>From the paper you already have to one clear answer</h2>
+  <div class="flow">
+    <div class="box"><h3>Input</h3><p>A photo of the note or discharge summary, plus the visit date.</p></div>
+    <div class="box"><h3>Process</h3><p>OCR and AI read the tests and dates. The patient confirms what was read. Doctor-reviewed rules check whether a test is due.</p></div>
+    <div class="box"><h3>Output</h3><p>A plain answer: test needed, not needed, or ask the clinic. With it: which test, by when, fasting, and which old reports to carry.</p></div>
+  </div>
+  <div class="usp"><b>What makes it different.</b> It works on the paper patients already have, and it says “ask the clinic” instead of guessing.</div>
+  <div class="tbl" style="margin-top:26px"><table>
+    <thead><tr><th></th><th>Existing approach</th><th>VisitReady</th></tr></thead>
+    <tbody>
+      <tr><td><b>Cost</b></td><td>A second trip: fare, lost wages, another fee</td><td>Free for patients; clinics pay a small subscription</td></tr>
+      <tr><td><b>Speed</b></td><td>Hold time with reception, or find out at the clinic</td><td>An answer in about a minute from a photo (design target)</td></tr>
+      <tr><td><b>Access</b></td><td>Calls in clinic hours; advice only as the slip is written</td><td>Any smartphone, any time; Hindi and Marathi planned</td></tr>
+      <tr><td><b>Ease of use</b></td><td>Medical shorthand on a handwritten slip</td><td>One clear answer: test, no test, or ask the clinic</td></tr>
+    </tbody></table></div>
+</div></section>
+
+<section id="impact"><div class="wrap">
+  <div class="eyebrow">Impact and scale</div>
+  <h2>Targets for the pilot year</h2>
+  <p class="lede">These are targets we will test and report as measured. They are not results.</p>
+  <div class="kpis">
+    <div class="kpi"><b>2,000</b><span>Patients reached</span><small>Pilot-year target, growing to 20,000 by year 3.</small></div>
+    <div class="kpi"><b>30%</b><span>Fewer repeat visits</span><small>Among pilot patients, for visits repeated only because a test or report was missing.</small></div>
+    <div class="kpi"><b>5</b><span>Pilot clinics</span><small>Year-1 target across Mumbai, growing to 50 by year 3.</small></div>
+  </div>
+  <div class="cols">
+    <div class="box"><h3>Social impact</h3><p>Families stop losing a day's wages and a fee to a trip that could not help. Clinics spend consultations on decisions, not rebooking. Supports SDG 3, Good Health and Well-being.</p></div>
+    <div class="box"><h3>Sustainability</h3><p>Free for patients, always. Revenue from a small clinic subscription and optional lab-partner bookings. We never sell patient data.</p></div>
+    <div class="box"><h3>Scale-up</h3><p>One condition group at a few Mumbai clinics, then one condition at a time as doctors approve the rules, then other cities. Later, link to ABHA records.</p></div>
+  </div>
+  <h3 style="margin-top:44px;font-size:24px">Where we are</h3>
+  <ol class="stage"><li class="past">Idea</li><li class="now">Proof of concept (this page)</li><li>Working prototype</li><li>Field pilot</li><li>Ready to deploy</li></ol>
+  <ul class="time">
+    <li><b>Now</b>Research, concept and this demo</li>
+    <li><b>3 months</b>Working prototype; doctors review the rules on mock notes</li>
+    <li><b>6 months</b>Pilot at 2 to 3 clinics</li>
+    <li><b>12 months</b>Hindi and Marathi, wider pilot</li>
+  </ul>
+</div></section>
+
+<section id="team" style="background:var(--card);border-top:1px solid var(--line)"><div class="wrap">
+  <div class="eyebrow">Team and support</div>
+  <h2>Who is building it</h2>
+  <div class="team">
+    <div class="person"><i>MS</i><div><b>Mohammed Ali Shaikh</b><span>AI and document reading</span></div></div>
+    <div class="person"><i>DP</i><div><b>Dhruv Prabhu</b><span>Product and clinic outreach</span></div></div>
+    <div class="person"><i>IN</i><div><b>Ishtiyaq Noorani</b><span>App development and design</span></div></div>
+  </div>
+  <p class="lede">We will also bring on a practising doctor as a part-time clinical advisor to review the test rules.</p>
+  <h3 style="margin-top:36px;font-size:22px">Support we are seeking</h3>
+  <ul class="ask-list"><li>Mentorship from doctors and health-tech experts</li><li>A pilot with a clinic, hospital or diagnostic lab</li><li>Funding or grant support</li><li>Incubation and workspace</li><li>Help with data-privacy and compliance review (DPDP Act 2023)</li></ul>
+</div></section>
+</main>
+
+<footer><div class="wrap">VisitReady is a student prototype built for the Seva First Innovation Challenge 2026. It does not diagnose, treat or replace your doctor's instructions. Sample notes use made-up names and dates.</div></footer>
+
+<script>
+/*LOGIC*/
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+const CONDS={
+  diabetes:{label:'Diabetes',re:/diabet|t2dm|t1dm|\bdm\b|metformin|hba1c/i},
+  thyroid:{label:'Thyroid',re:/thyroid|thyroxine|levothyrox|\btsh\b/i},
+  bp:{label:'Blood pressure',re:/hypertens|\bhtn\b|\bbp\b|amlodipine|telmisartan|blood pressure/i},
+  kidney:{label:'Kidney',re:/\bckd\b|kidney|renal|nephro/i}
+};
+const TESTS={
+  hba1c:{label:'HbA1c',re:/hba1c|\ba1c\b|glycosylated/i,fasting:false},
+  fbs:{label:'Fasting blood sugar',re:/\bfbs\b|\bfbg\b|fasting (blood )?(sugar|glucose)/i,fasting:true},
+  ppbs:{label:'Post-meal blood sugar',re:/\bppbs\b|post[- ]?(prandial|meal)/i,fasting:false},
+  tsh:{label:'TSH (thyroid)',re:/\btsh\b|thyroid profile|\bt3\b|\bt4\b/i,fasting:false},
+  creat:{label:'Kidney function (creatinine)',re:/creatinine|egfr|\burea\b|\bkft\b|\brft\b/i,fasting:false},
+  acr:{label:'Urine albumin (ACR)',re:/\bacr\b|urine (albumin|protein)|microalbumin/i,fasting:false},
+  lipid:{label:'Lipid profile',re:/lipid|cholesterol|\bldl\b/i,fasting:true}
+};
+/* Illustrative demo rules. Not clinical advice; pending review by practising doctors. */
+const RULES={
+  diabetes:[{t:'hba1c',every:75,why:'HbA1c is usually repeated about every 3 months'}],
+  thyroid:[{t:'tsh',every:42,why:'TSH is usually rechecked about 6 weeks after a dose change'}],
+  bp:[{t:'creat',every:365,why:'Kidney function is usually checked about once a year on blood pressure treatment'}],
+  kidney:[{t:'creat',every:90,why:'Kidney function is usually rechecked about every 3 months'},{t:'acr',every:90,why:'Urine albumin is usually rechecked about every 3 months'}]
+};
+const CARRY={diabetes:'Your glucose diary and current medicines',thyroid:'Your current thyroid tablet strip',bp:'Your home blood pressure readings',kidney:'Your latest urine and kidney reports'};
+
+function parseDates(s){
+  const out=[];let m;
+  const r1=/(\d{1,2})[\s-]*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s,-]*(\d{4})/gi;
+  while((m=r1.exec(s)))out.push({idx:m.index,d:new Date(Date.UTC(+m[3],MONTHS[m[2].toLowerCase()],+m[1]))});
+  const r2=/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/g;
+  while((m=r2.exec(s)))out.push({idx:m.index,d:new Date(Date.UTC(+m[3],+m[2]-1,+m[1]))});
+  return out.sort((a,b)=>a.idx-b.idx);
+}
+function analyse(text){
+  const counts=Object.entries(CONDS).map(([k,c])=>[k,(text.match(new RegExp(c.re.source,'gi'))||[]).length]).sort((a,b)=>b[1]-a[1]);
+  const cond=counts[0][1]>0?counts[0][0]:null;
+  const found=[];
+  for(const [k,t] of Object.entries(TESTS)){
+    const re=new RegExp(t.re.source,'gi');let m,ordered=false,last=null,mentioned=false;
+    while((m=re.exec(text))){
+      mentioned=true;
+      let win=text.slice(m.index+m[0].length,m.index+m[0].length+55);
+      const cuts=[win.search(/\.\s|\n|;/),...Object.values(TESTS).filter(o=>o!==t).map(o=>win.search(o.re))].filter(i=>i>=0);
+      if(cuts.length)win=win.slice(0,Math.min(...cuts));
+      const ds=parseDates(win);
+      if(ds.length){if(!last||ds[0].d>last)last=ds[0].d;}else ordered=true;
+    }
+    if(mentioned)found.push({key:k,label:t.label,ordered,last});
+  }
+  return {cond,found};
+}
+const DAY=86400000;
+function days(a,b){return Math.round((a-b)/DAY);}
+function fmt(d){return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});}
+function evaluate(cond,visit,rows,today){
+  const byKey={};rows.forEach(r=>byKey[r.key]=r);
+  const needed=[],current=[],unknown=[];
+  rows.filter(r=>r.ordered).forEach(r=>needed.push({key:r.key,label:r.label,why:'Your doctor asked for it in the note.'}));
+  (RULES[cond]||[]).forEach(rule=>{
+    const r=byKey[rule.t],label=TESTS[rule.t].label;
+    if(r&&r.ordered)return;
+    if(r&&r.last){
+      const age=days(visit,r.last);
+      if(age>=rule.every)needed.push({key:rule.t,label,why:'Last done '+fmt(r.last)+', about '+age+' days before your visit. '+rule.why+'.'});
+      else current.push({key:rule.t,label,why:'Last done '+fmt(r.last)+', about '+age+' days before your visit. Still recent.'});
+    }else unknown.push({key:rule.t,label,why:'The note does not say when this was last done.'});
+  });
+  let verdict;
+  if(needed.length)verdict='need';
+  else if(!cond||unknown.length)verdict='ask';
+  else verdict='none';
+  let by=new Date(visit.getTime()-2*DAY);
+  const t0=new Date(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()));
+  const asap=by<=t0;if(asap)by=t0;
+  const fasting=needed.some(n=>TESTS[n.key].fasting);
+  const carry=['Your follow-up note'];
+  rows.filter(r=>r.last).forEach(r=>carry.push('Your '+r.label+' report from '+fmt(r.last)));
+  needed.forEach(n=>carry.push('The new '+n.label+' report'));
+  if(CARRY[cond])carry.push(CARRY[cond]);
+  return {verdict,needed,current,unknown,by,asap,fasting,carry};
+}
+/*END*/
+
+const SAMPLES=[
+  {id:'s1',title:'Diabetes review',visit:'2026-11-24',text:'Mr. R. Patil, 58/M. T2DM on Metformin 500 bd.\nHbA1c 7.9% (12 Aug 2026).\nReview after 2 weeks with FBS, PPBS and HbA1c.\nContinue diet control.'},
+  {id:'s2',title:'Thyroid dose change',visit:'2026-11-30',text:'Smt. S. Kulkarni, 46/F. Hypothyroid.\nThyroxine increased 75 to 100 mcg on 05 Oct 2026.\nTSH 6.8 (28 Sep 2026).\nCome after 6 weeks, repeat TSH.'},
+  {id:'s3',title:'Blood pressure check',visit:'2026-12-04',text:'Mr. A. Shaikh, 63/M. HTN, Amlodipine 5 mg OD.\nBP 142/88.\nCreatinine 1.0 (02 Oct 2026).\nReview in 2 weeks, bring BP readings.'},
+  {id:'s4',title:'Unclear slip',visit:'2026-11-27',text:'F/u 2 wks.\nSame Rx.\n?repeat'}
+];
+
+const $=id=>document.getElementById(id);
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs||{})){if(k==='text')e.textContent=v;else if(k in e&&k!=='list')e[k]=v;else e.setAttribute(k,v);}kids.forEach(k=>e.append(k));return e;}
+function iso(d){return d.toISOString().slice(0,10);}
+function toDate(v){return v?new Date(v+'T00:00:00Z'):null;}
+
+let state={cond:null,rows:[]};
+function show(n){
+  [1,2,3].forEach(i=>$('pane'+i).hidden=(i!==n));
+  document.querySelectorAll('#stepBar li').forEach(li=>{const s=+li.dataset.s;li.classList.toggle('on',s===n);li.classList.toggle('done',s<n);});
+  $('stepBar').scrollIntoView({block:'nearest'});
+}
+function pick(id){
+  const s=SAMPLES.find(x=>x.id===id);
+  $('noteText').value=s.text;$('visitDate').value=s.visit;
+  document.querySelectorAll('#sampleList .chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.id===id)));
+}
+SAMPLES.forEach(s=>{const b=h('button',{type:'button',className:'chip',text:s.title});b.dataset.id=s.id;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>pick(s.id));$('sampleList').append(b);});
+pick('s1');
+
+$('noteText').addEventListener('input',()=>document.querySelectorAll('#sampleList .chip').forEach(c=>c.setAttribute('aria-pressed','false')));
+
+$('readBtn').addEventListener('click',()=>{
+  $('err1').textContent='';
+  const text=$('noteText').value.trim();
+  if(!text){$('err1').textContent='Add the text of your note, or pick a sample.';return;}
+  if(!$('visitDate').value){$('err1').textContent='Choose the date of your follow-up visit.';return;}
+  const a=analyse(text);
+  state={cond:a.cond,rows:a.found};
+  const sel=$('condSel');sel.textContent='';
+  sel.append(h('option',{value:'',text:'Not sure'}));
+  Object.entries(CONDS).forEach(([k,c])=>sel.append(h('option',{value:k,text:c.label})));
+  sel.value=a.cond||'';
+  $('visitShow').value=$('visitDate').value;
+  const body=$('readRows');body.textContent='';
+  a.found.forEach((r,i)=>{
+    const cb=h('input',{type:'checkbox',id:'ord'+i,checked:r.ordered});cb.setAttribute('aria-label','Doctor asked for '+r.label);
+    cb.addEventListener('change',()=>{state.rows[i].ordered=cb.checked;});
+    const dt=h('input',{type:'date',id:'last'+i,value:r.last?iso(r.last):''});dt.setAttribute('aria-label','Last done for '+r.label);
+    dt.addEventListener('change',()=>{state.rows[i].last=toDate(dt.value);});
+    body.append(h('tr',{},h('td',{},h('b',{text:r.label})),h('td',{},cb),h('td',{},dt)));
+  });
+  $('noRows').textContent=a.found.length?'':'We found no test names in the note. We will ask you to check with the clinic.';
+  $('err2').textContent='';
+  show(2);
+});
+$('back1').addEventListener('click',()=>show(1));
+$('back2').addEventListener('click',()=>show(2));
+$('restart').addEventListener('click',()=>{show(1);pick('s1');});
+$('condSel').addEventListener('change',e=>{state.cond=e.target.value||null;});
+
+$('answerBtn').addEventListener('click',()=>{
+  $('err2').textContent='';
+  const visit=toDate($('visitShow').value);
+  const today=new Date();
+  if(!visit){$('err2').textContent='Choose the visit date.';return;}
+  const t0=new Date(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()));
+  if(visit<t0){$('err2').textContent='That visit date has passed. Choose a future date.';return;}
+  const r=evaluate(state.cond,visit,state.rows,today);
+  renderAnswer(r,visit);
+  show(3);
+});
+
+function list(items,fn){const ul=h('ul');items.forEach(i=>ul.append(fn(i)));return ul;}
+function renderAnswer(r,visit){
+  const box=$('answerBox');box.textContent='';
+  const V={
+    need:{cls:'need',ic:'!',t:'Test needed before this visit',p:'Get the test below done first, so the doctor has the result on '+fmt(visit)+'.'},
+    none:{cls:'none',ic:'✓',t:'No new test needed',p:'Based on your note, nothing new is due before '+fmt(visit)+'. Carry the reports listed below.'},
+    ask:{cls:'ask',ic:'?',t:'Ask the clinic first',p:'We cannot be sure from this note, so we will not guess. Send the clinic the question below.'}
+  }[r.verdict];
+  box.append(h('div',{className:'verdict '+V.cls},h('div',{className:'ic','aria-hidden':'true',text:V.ic}),h('div',{},h('h3',{text:V.t}),h('p',{text:V.p}))));
+  const grid=h('div',{className:'grid2'});
+  if(r.needed.length){
+    grid.append(h('div',{className:'box'},h('h4',{text:'Tests to get done'}),list(r.needed,n=>h('li',{},n.label,h('br'),h('span',{text:n.why})))));
+    const when=h('div',{className:'box'},h('h4',{text:'By when'}),h('p',{text:r.asap?'As soon as you can, ideally today or tomorrow, so the result is ready for your visit.':'By '+fmt(r.by)+', so the result is ready for your visit.'}));
+    if(r.fasting)when.append(h('h4',{text:'Fasting',style:'margin-top:14px'}),h('p',{text:'At least one of these tests is usually done fasting, about 8 to 10 hours with water only. Ask the lab or clinic whether to take your usual medicines that morning.'}));
+    else when.append(h('p',{className:'small',text:'None of these tests usually needs fasting. Confirm with the lab.',style:'margin-top:10px'}));
+    grid.append(when);
+  }
+  if(r.current.length)grid.append(h('div',{className:'box'},h('h4',{text:'Already up to date'}),list(r.current,n=>h('li',{},n.label,h('br'),h('span',{text:n.why})))));
+  grid.append(h('div',{className:'box'},h('h4',{text:'Carry to the visit'}),list(r.carry,c=>h('li',{text:c}))));
+  box.append(grid);
+  const asks=[];
+  r.unknown.forEach(u=>asks.push(u.label+' (last date not in my note)'));
+  if(r.verdict==='ask'||r.unknown.length){
+    const q='Hello, I have a follow-up visit on '+fmt(visit)+'. My note does not say if I need a new test first'+(asks.length?'. Can you confirm for: '+asks.join('; ')+'?':'. Can you tell me which tests and reports to bring?');
+    const qb=h('div',{className:'q'},h('b',{text:'Question to send the clinic'}),h('br'),h('span',{text:q}));
+    const cp=h('button',{type:'button',className:'btn ghost',text:'Copy question',style:'margin-top:10px;padding:10px 14px;font-size:14px'});
+    cp.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(q);cp.textContent='Copied';}catch(e){cp.textContent='Select the text above to copy';}});
+    qb.append(h('br'),cp);box.append(qb);
+  }
+  box.append(h('p',{className:'small',style:'margin-top:16px',text:'Why we say this: the answer uses the note you gave and illustrative rules that doctors have not yet reviewed. Your clinic has the final say.'}));
+}
+
+/* Photo reading: runs only where the viewer's Claude connection is available. */
+let sampleFn=null;
+if(window.claude&&window.claude.use){window.claude.use('sample').then(s=>{sampleFn=s||null;}).catch(()=>{});}
+$('photoFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const st=$('photoStatus');
+  if(!sampleFn){st.textContent='Photo reading is not available on this view. Paste the text of your note, or pick a sample.';return;}
+  try{
+    const lim=await sampleFn.limits();
+    if(!lim||!lim.images){st.textContent='Photo reading is not available on this view. Paste the text of your note, or pick a sample.';return;}
+    st.textContent='Reading your photo…';
+    const res=await sampleFn('Transcribe this medical follow-up note exactly as written, keeping line breaks. Return only the transcribed text, nothing else. If it is not a medical note, return the single word UNREADABLE.',{images:[f],cache:false});
+    const txt=(res.text||'').trim();
+    if(!txt||txt==='UNREADABLE'){st.textContent='We could not read that photo. Try a clearer picture or type the note.';return;}
+    $('noteText').value=txt;
+    document.querySelectorAll('#sampleList .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    st.textContent='Done. Check the text and the visit date, then press Read my note.';
+  }catch(err){
+    st.textContent=(err&&err.code==='not_granted')?'Photo reading was not allowed. Paste the text of your note instead.':'Photo reading failed. Paste the text of your note instead.';
+  }
+});
+</script>
+</body>
+</html>
